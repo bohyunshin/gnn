@@ -1,1 +1,38 @@
 # gnn
+
+## Setting up environment
+
+We are using uv to manage project dependencies.
+
+```bash
+# Install uv
+$ curl -LsSf https://astral.sh/uv/install.sh | sh
+# check uv version
+$ uv --version
+uv 0.8.3 (7e78f54e7 2025-07-24)
+```
+
+Create virtual environment using python 3.11.x.
+
+```bash
+$ uv venv --python 3.11
+Using CPython 3.11.10
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
+```
+
+Install dependencies from `pyproject.toml`.
+
+If you added any packages to `pyproject.toml`, please run following command to sync dependencies.
+
+```bash
+$ uv lock
+```
+
+## Setting up git hook
+
+Set up automatic linting using the following commands:
+```shell
+# This command will ensure linting runs automatically every time you commit code.
+pre-commit install
+```

@@ -1,0 +1,18 @@
+.idea/
+.venv/
+venv/
+.vscode/
+*.log
+*.pt
+*.pkl
+__pycache__/
+.ipynb_checkpoints/
+.python-version
+
+# line profile analysis file
+*.lprof
+
+zip/
+trained_models/
+
+.DS_Store
