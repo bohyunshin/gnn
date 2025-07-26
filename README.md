@@ -43,6 +43,20 @@ Set up automatic linting using the following commands:
 pre-commit install
 ```
 
+## How to run experiment
+
+Here is a sample code for running Two layers GCN on cora dataset.
+
+```bash
+$ export PYTHONPATH=.
+$ uv run python3 gnn/train.py \
+  --data_name cora \
+  --model_name gcn \
+  --epochs 200
+```
+
+After finishing training, all the results, such as loss, accuracy, best torch weight will be saved in `result/untest/{model_name}/{dt}`.
+
 ## Experiment results
 
 |Model|Dataset|Test loss|Test Accuracy|
