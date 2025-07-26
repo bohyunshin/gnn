@@ -16,3 +16,5 @@ zip/
 trained_models/
 
 .DS_Store
+
+result/
