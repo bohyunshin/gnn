@@ -59,11 +59,12 @@ After finishing training, all the results, such as loss, accuracy, best torch we
 
 ## Experiment results
 
-|Model                        |Dataset|Test loss|Test Accuracy|
-|-----------------------------|-------|---------|-------------|
-| GCN                         | cora  | 0.7136  | 0.7907      |
-| Graphsage (mean aggregator) | cora  | 0.8249  | 0.7425      |
-| GAT (head=1)                | cora  | 1.0544  | 0.7123      |
+|Model                         |Dataset|Test loss|Test Accuracy|
+|------------------------------|-------|---------|-------------|
+| GCN                          | cora  | 0.7136  | 0.7907      |
+| Graphsage (mean aggregator)  | cora  | 0.8249  | 0.7425      |
+| GAT (head=1)                 | cora  | 1.0544  | 0.7123      |
+| FastGCN (importance sampling)| cora  | 1.286   | 0.6867      |
 
 
 ## How to run pytest
