@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 import torch
@@ -16,7 +16,9 @@ class DataLoader:
         self.edge_data_path = os.path.join(data_path, f"{data_name}.cites")
         self.logger = logger
 
-    def load(self) -> Tuple[sparse.coo_matrix, sparse.coo_matrix, Tensor]:
+    def load(
+        self,
+    ) -> Tuple[sparse.coo_matrix, sparse.coo_matrix, Tensor, Dict[int, int]]:
         idx_features_labels = np.genfromtxt(
             fname=self.node_data_path,
             dtype=np.dtype(str),
@@ -62,4 +64,4 @@ class DataLoader:
         features = torch.FloatTensor(np.array(features.todense()))
         labels = torch.LongTensor(np.where(labels)[1])
 
-        return features, adj, labels
+        return features, adj, labels, idx_map
