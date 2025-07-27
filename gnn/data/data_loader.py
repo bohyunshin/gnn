@@ -5,10 +5,9 @@ from typing import Tuple
 import numpy as np
 import torch
 from torch import Tensor
-from numpy.typing import NDArray
 from scipy import sparse
 from sklearn.preprocessing import OneHotEncoder
-from gnn.libs.utils import normalize, sparse_mx_to_torch_sparse_tensor
+from gnn.libs.utils import normalize
 
 
 class DataLoader:
@@ -17,7 +16,7 @@ class DataLoader:
         self.edge_data_path = os.path.join(data_path, f"{data_name}.cites")
         self.logger = logger
 
-    def load(self) -> Tuple[NDArray, Tensor, sparse.coo_matrix, Tensor]:
+    def load(self) -> Tuple[sparse.coo_matrix, sparse.coo_matrix, Tensor]:
         idx_features_labels = np.genfromtxt(
             fname=self.node_data_path,
             dtype=np.dtype(str),
@@ -50,14 +49,17 @@ class DataLoader:
 
         self.logger.info(f"Number of edges: {edges.shape[0]}")
 
-        # build symmetric adjacency matrix
+        # build symmetric adjacency matrix.
+        # when adj[i,j] != adj[j,i], set max(adj[i,j], adj[j,i]) = adj[i,j] = adj[j,i]
+        # in the kipf GCN paper, the author assumes undirected, symmetric adjacency matrix.
         adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
 
+        # row-wise normalize feature.
+        # it is not mandatory to do this normalization,
+        # but kipf mentioned feature normalization in the GCN paper.
         features = normalize(features)
-        adj = normalize(adj + sparse.eye(adj.shape[0]))
 
         features = torch.FloatTensor(np.array(features.todense()))
         labels = torch.LongTensor(np.where(labels)[1])
-        adj = sparse_mx_to_torch_sparse_tensor(adj)
 
         return features, adj, labels

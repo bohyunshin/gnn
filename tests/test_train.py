@@ -5,7 +5,10 @@ from gnn.train import main
 
 @pytest.mark.parametrize(
     "setup_config",
-    [("cora", "gcn")],
+    [
+        ("cora", "gcn"),
+        ("cora", "graphsage"),
+    ],
     indirect=["setup_config"],
 )
 def test_train(setup_config):

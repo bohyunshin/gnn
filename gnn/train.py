@@ -14,6 +14,7 @@ from gnn.libs.logger import setup_logger
 from gnn.libs.plot import plot_metric_at_k
 from gnn.data.data_loader import DataLoader
 from gnn.data.data_splitter import train_val_test_split
+from gnn.preprocess.preprocessor import preprocess_adjacency_matrix
 
 
 ROOT_PATH = os.path.join(os.path.dirname(__file__), "..")
@@ -31,6 +32,8 @@ def main(args: argparse.ArgumentParser) -> None:
     logger = setup_logger(os.path.join(result_path, "log.log"))
 
     logger.info(f"model: {args.model_name}")
+    if args.model_name == "graphsage":
+        logger.info(f"graphsage aggregator function: {args.sage_aggregator}")
     logger.info(f"learning rate: {args.learning_rate}")
     logger.info(f"weight decay: {args.weight_decay}")
     logger.info(f"dropout: {args.dropout}")
@@ -48,6 +51,12 @@ def main(args: argparse.ArgumentParser) -> None:
     )
     features, adj, labels = data_loader.load()
 
+    # preprocess adjacency matrix depending on selected model
+    adj = preprocess_adjacency_matrix(
+        adj=adj,
+        model_name=args.model_name,
+    )
+
     # get tr / val / test index for semi-supervised learning
     idx_train, idx_val, idx_test = train_val_test_split(
         num_train=data_config.num_train,
@@ -62,6 +71,7 @@ def main(args: argparse.ArgumentParser) -> None:
         hidden_dim=features.shape[1] // 2,
         num_class=labels.max().item() + 1,
         dropout=args.dropout,
+        aggregator=args.sage_aggregator,
     )
     optimizer = optim.Adam(
         model.parameters(),
