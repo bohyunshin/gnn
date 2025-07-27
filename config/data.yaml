@@ -1,3 +1,3 @@
 cora:
   num_train: 140
-  num_val: 300
+  num_val: 500
