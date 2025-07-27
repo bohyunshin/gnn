@@ -7,6 +7,7 @@ from scipy import sparse
 
 from gnn.model.gcn import GCN
 from gnn.model.graphsage import GraphSage
+from gnn.model.gat import GraphAttention
 
 
 def normalize(mx: sparse.csr_matrix) -> sparse.csr_matrix:
@@ -32,11 +33,13 @@ def sparse_mx_to_torch_sparse_tensor(
     return torch.sparse.FloatTensor(indices, values, shape)
 
 
-def get_model_module(model_name: str) -> Type[Union[GCN, GraphSage]]:
+def get_model_module(model_name: str) -> Type[Union[GCN, GraphSage, GraphAttention]]:
     if model_name == "gcn":
         return GCN
     elif model_name == "graphsage":
         return GraphSage
+    elif model_name == "gat":
+        return GraphAttention
     else:
         raise ValueError(f"Unsupported model: {model_name}")
 

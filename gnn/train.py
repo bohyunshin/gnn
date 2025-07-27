@@ -83,6 +83,8 @@ def main(args: argparse.ArgumentParser) -> None:
         num_class=labels.max().item() + 1,
         dropout=args.dropout,
         aggregator=args.sage_aggregator,
+        num_heads=args.num_heads,
+        alpha=args.leaky_relu_alpha,
     )
     optimizer = optim.Adam(
         model.parameters(),
