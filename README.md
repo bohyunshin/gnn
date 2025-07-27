@@ -1,6 +1,6 @@
 # gnn
 
-Let's practice modeling semi-supervised learning ML models.
+Let's implement ML models for semi-supervised learning.
 
 ## Setting up environment
 
@@ -62,6 +62,7 @@ After finishing training, all the results, such as loss, accuracy, best torch we
 |Model|Dataset|Test loss|Test Accuracy|
 |-----|-------|---------|-------------|
 | GCN | cora  | 0.7136  | 0.7907      |
+| Graphsage | cora  | 0.8249  | 0.7425 |
 
 
 ## How to run pytest
