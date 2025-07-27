@@ -55,7 +55,7 @@ def main(args: argparse.ArgumentParser) -> None:
         data_name=args.data_name,
         logger=logger,
     )
-    features, adj, labels = data_loader.load()
+    features, adj, labels, idx_map = data_loader.load()
 
     # preprocess adjacency matrix depending on selected model
     adj = preprocess_adjacency_matrix(
@@ -179,7 +179,23 @@ def main(args: argparse.ArgumentParser) -> None:
     model.load_state_dict(best_model_weights)
     logger.info("Load weight with best validation loss")
 
-    torch.save(model.state_dict(), os.path.join(result_path, "weight.pt"))
+    # torch.save(model.state_dict(), os.path.join(result_path, "weight.pt"))
+
+    torch.save(
+        {
+            "state_dict": model.state_dict(),
+            "config": {
+                "num_feature": features.shape[1],
+                "hidden_dim": features.shape[1] // 2,
+                "num_class": labels.max().item() + 1,
+                "dropout": args.dropout,
+            },
+            "features": features,
+            "adj": adj,
+            "idx_map": idx_map,
+        },
+        os.path.join(result_path, "train_result.pt"),
+    )
 
     # summarize training results
     plot_metric_at_k(
