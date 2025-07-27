@@ -1,6 +1,7 @@
 import argparse
 from typing import Any, Dict, Tuple
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import Tensor
@@ -27,6 +28,7 @@ class GCNInference:
         self.features = checkpoint["features"].to(device)
         self.adj = checkpoint["adj"].to(device)
         self.idx_map = checkpoint["idx_map"]
+        self.idx_map_rev = {j: i for i, j in self.idx_map.items()}
 
         # Initialize model with saved configuration
         self.model = GCN(
@@ -81,19 +83,41 @@ class GCNInference:
             else:
                 raise ValueError("layer must be 'hidden' or 'final'")
 
+    def most_similar(
+        self, embeddings: Tensor, top_k: int = 10
+    ) -> Tuple[Tensor, Tensor]:
+        scores = torch.mm(embeddings, embeddings.T)
+        top_k = torch.topk(scores, k=top_k)
+        top_k_id, top_k_score = top_k.indices, top_k.values
+        return top_k_id, top_k_score
+
     def make_result_dict(
-        self, probs: Tensor, y_pred: Tensor, embeddings: Tensor
+        self,
+        probs: Tensor,
+        y_pred: Tensor,
+        embeddings: Tensor,
+        most_similar_ids: Tensor,
+        most_similar_scores: Tensor,
     ) -> Dict[int, Any]:
         result = {}
-        idx_map_rev = {j: i for i, j in self.idx_map.items()}
         num_nodes = probs.size(0)
         for i in range(num_nodes):
-            original_id = idx_map_rev[i]
+            original_id = self.idx_map_rev[i]
             prob = probs[i].numpy()
             pred = y_pred[i].numpy()
             embedding = embeddings[i].numpy()
+            most_similar_id = np.array(
+                [self.idx_map_rev[i] for i in most_similar_ids[i].numpy()]
+            )
+            most_similar_score = most_similar_scores[i].numpy()
 
-            result[original_id] = {"prob": prob, "pred": pred, "embedding": embedding}
+            result[original_id] = {
+                "prob": prob,
+                "pred": pred,
+                "embedding": embedding,
+                "most_similar_id": most_similar_id,
+                "most_similar_score": most_similar_score,
+            }
 
         return result
 
@@ -114,7 +138,13 @@ def main(args: argparse.ArgumentParser):
     print(embeddings.size())
     print(embeddings[0])
 
-    result_dict = gcn_inference.make_result_dict(probs, y_pred, embeddings)
+    top_k_id, top_k_score = gcn_inference.most_similar(embeddings)
+    print(top_k_id.size())
+    print(top_k_score.size())
+
+    result_dict = gcn_inference.make_result_dict(
+        probs, y_pred, embeddings, top_k_id, top_k_score
+    )
     print(result_dict[31336])
 
 
