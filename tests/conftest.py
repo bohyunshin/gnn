@@ -12,6 +12,8 @@ def setup_config(request):
     args.sage_aggregator = "mean"
     args.num_heads = 2
     args.leaky_relu_alpha = 0.2
+    args.fastgcn_sample_size = 5
+    args.fastgcn_sampling_method = "importance"
     args.learning_rate = 0.01
     args.weight_decay = 5e-4
     args.dropout = 0.5
