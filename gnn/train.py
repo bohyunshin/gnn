@@ -64,6 +64,17 @@ def main(args: argparse.ArgumentParser) -> None:
         n=labels.shape[0],
     )
 
+    logger.info(f"Number of total nodes: {labels.shape[0]}")
+    logger.info(
+        f"Number of train nodes: {len(idx_train)}, {round(len(idx_train) / labels.shape[0], 4)} out of total"
+    )
+    logger.info(
+        f"Number of val nodes: {len(idx_val)}, {round(len(idx_val) / labels.shape[0], 4)} out of total"
+    )
+    logger.info(
+        f"Number of test nodes: {len(idx_test)}, {round(len(idx_test) / labels.shape[0], 4)} out of total"
+    )
+
     # model and optimizer
     model_module = get_model_module(model_name=args.model_name)
     model = model_module(
@@ -72,6 +83,8 @@ def main(args: argparse.ArgumentParser) -> None:
         num_class=labels.max().item() + 1,
         dropout=args.dropout,
         aggregator=args.sage_aggregator,
+        num_heads=args.num_heads,
+        alpha=args.leaky_relu_alpha,
     )
     optimizer = optim.Adam(
         model.parameters(),
