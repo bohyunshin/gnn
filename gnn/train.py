@@ -34,6 +34,12 @@ def main(args: argparse.ArgumentParser) -> None:
     logger.info(f"model: {args.model_name}")
     if args.model_name == "graphsage":
         logger.info(f"graphsage aggregator function: {args.sage_aggregator}")
+    elif args.model_name == "gat":
+        logger.info(f"number of heads when multi-head attention: {args.num_heads}")
+        logger.info(f"alpha in leaky relu: {args.leaky_relu_alpha}")
+    elif args.model_name == "fastgcn":
+        logger.info(f"sample size: {args.fastgcn_sample_size}")
+        logger.info(f"selected sampling method: {args.fastgcn_sampling_method}")
     logger.info(f"learning rate: {args.learning_rate}")
     logger.info(f"weight decay: {args.weight_decay}")
     logger.info(f"dropout: {args.dropout}")
@@ -85,6 +91,8 @@ def main(args: argparse.ArgumentParser) -> None:
         aggregator=args.sage_aggregator,
         num_heads=args.num_heads,
         alpha=args.leaky_relu_alpha,
+        sample_size=args.fastgcn_sample_size,
+        sampling_method=args.fastgcn_sampling_method,
     )
     optimizer = optim.Adam(
         model.parameters(),
