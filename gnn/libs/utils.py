@@ -7,6 +7,7 @@ from scipy import sparse
 
 from gnn.model.gcn import GCN
 from gnn.model.graphsage import GraphSage
+from gnn.model.gat import GraphAttention
 
 
 def normalize(mx: sparse.csr_matrix) -> sparse.csr_matrix:
@@ -37,6 +38,8 @@ def get_model_module(model_name: str) -> Type[Union[GCN, GraphSage]]:
         return GCN
     elif model_name == "graphsage":
         return GraphSage
+    elif model_name == "gat":
+        return GraphAttention
     else:
         raise ValueError(f"Unsupported model: {model_name}")
 

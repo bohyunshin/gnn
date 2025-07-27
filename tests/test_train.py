@@ -8,6 +8,7 @@ from gnn.train import main
     [
         ("cora", "gcn"),
         ("cora", "graphsage"),
+        ("cora", "gat"),
     ],
     indirect=["setup_config"],
 )
