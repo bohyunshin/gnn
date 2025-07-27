@@ -4,7 +4,12 @@ import argparse
 def parse_args() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_name", type=str, required=True, choices=["cora"])
-    parser.add_argument("--model_name", type=str, required=True, choices=["gcn"])
+    parser.add_argument(
+        "--model_name", type=str, required=True, choices=["gcn", "graphsage"]
+    )
+    parser.add_argument(
+        "--sage_aggregator", type=str, default="mean", choices=["mean", "max", "lstm"]
+    )
     parser.add_argument("--learning_rate", type=float, default=0.01)
     parser.add_argument("--weight_decay", type=float, default=5e-4)
     parser.add_argument("--dropout", type=float, default=0.5)

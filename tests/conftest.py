@@ -9,6 +9,7 @@ def setup_config(request):
     args = argparse.ArgumentParser()
     args.data_name = data_name
     args.model_name = model_name
+    args.sage_aggregator = "mean"
     args.learning_rate = 0.01
     args.weight_decay = 5e-4
     args.dropout = 0.5
