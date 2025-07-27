@@ -14,6 +14,7 @@ from gnn.libs.logger import setup_logger
 from gnn.libs.plot import plot_metric_at_k
 from gnn.data.data_loader import DataLoader
 from gnn.data.data_splitter import train_val_test_split
+from gnn.preprocess.preprocessor import preprocess_adjacency_matrix
 
 
 ROOT_PATH = os.path.join(os.path.dirname(__file__), "..")
@@ -47,6 +48,12 @@ def main(args: argparse.ArgumentParser) -> None:
         logger=logger,
     )
     features, adj, labels = data_loader.load()
+
+    # preprocess adjacency matrix depending on selected model
+    adj = preprocess_adjacency_matrix(
+        adj=adj,
+        model_name=args.model_name,
+    )
 
     # get tr / val / test index for semi-supervised learning
     idx_train, idx_val, idx_test = train_val_test_split(
