@@ -32,6 +32,8 @@ def main(args: argparse.ArgumentParser) -> None:
     logger = setup_logger(os.path.join(result_path, "log.log"))
 
     logger.info(f"model: {args.model_name}")
+    if args.model_name == "graphsage":
+        logger.info(f"graphsage aggregator function: {args.sage_aggregator}")
     logger.info(f"learning rate: {args.learning_rate}")
     logger.info(f"weight decay: {args.weight_decay}")
     logger.info(f"dropout: {args.dropout}")
@@ -69,6 +71,7 @@ def main(args: argparse.ArgumentParser) -> None:
         hidden_dim=features.shape[1] // 2,
         num_class=labels.max().item() + 1,
         dropout=args.dropout,
+        aggregator=args.sage_aggregator,
     )
     optimizer = optim.Adam(
         model.parameters(),
