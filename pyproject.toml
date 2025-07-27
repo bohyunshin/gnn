@@ -32,3 +32,11 @@ dev-dependencies = [
     "ruff==0.9.9",
     "pre-commit>=4.0,<5.0",
 ]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["gnn*"]
+exclude = ["data*", "config*", "tests*"]
