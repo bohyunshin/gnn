@@ -9,7 +9,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from gnn.libs.parse_args import parse_args
 from gnn.libs.config import load_yaml
-from gnn.libs.utils import get_model_module, accuracy
+from gnn.libs.utils import get_model_module, evaluate
 from gnn.libs.logger import setup_logger
 from gnn.libs.plot import plot_metric_at_k
 from gnn.data.data_loader import DataLoader
@@ -102,10 +102,10 @@ def main(args: argparse.ArgumentParser) -> None:
 
     train_start_time = time.time()
     best_loss = float("inf")
-    tr_losses = []
-    tr_accs = []
-    val_losses = []
-    val_accs = []
+    metric = {
+        data_type: {"loss": [], "accuracy": [], "f1_macro": []}
+        for data_type in ["train", "val"]
+    }
     early_stopping = False
     for epoch in range(args.epochs):
         logger.info(f"################## epoch {epoch} ##################")
@@ -114,26 +114,28 @@ def main(args: argparse.ArgumentParser) -> None:
         optimizer.zero_grad()
         output = model(features, adj)
         tr_loss = F.nll_loss(output[idx_train], labels[idx_train])
-        tr_acc = accuracy(output[idx_train], labels[idx_train])
+        tr_acc, tr_f1 = evaluate(output[idx_train], labels[idx_train])
         tr_loss.backward()
         optimizer.step()
 
         val_loss = F.nll_loss(output[idx_val], labels[idx_val])
-        val_acc = accuracy(output[idx_val], labels[idx_val])
+        val_acc, val_f1 = evaluate(output[idx_val], labels[idx_val])
 
         tr_loss = tr_loss.item()
-        tr_acc = tr_acc.item()
         val_loss = val_loss.item()
-        val_acc = val_acc.item()
-        tr_losses.append(tr_loss)
-        tr_accs.append(tr_acc)
-        val_losses.append(val_loss)
-        val_accs.append(val_acc)
+        metric["train"]["loss"].append(tr_loss)
+        metric["train"]["accuracy"].append(tr_acc)
+        metric["train"]["f1_macro"].append(tr_f1)
+        metric["val"]["loss"].append(val_loss)
+        metric["val"]["accuracy"].append(val_acc)
+        metric["val"]["f1_macro"].append(val_f1)
 
         logger.info(f"Train loss: {round(tr_loss, 4)}")
         logger.info(f"Train accuracy: {round(tr_acc, 4)}")
+        logger.info(f"Train f1_macro: {round(tr_f1, 4)}")
         logger.info(f"Val loss: {round(val_loss, 4)}")
         logger.info(f"Val accuracy: {round(val_acc, 4)}")
+        logger.info(f"Val f1-f1_macro: {round(val_f1, 4)}")
         logger.info(
             f"Elapsed time for current epoch: {round(time.time() - epoch_start_time, 4)}"
         )
@@ -171,15 +173,14 @@ def main(args: argparse.ArgumentParser) -> None:
     with torch.no_grad():
         output = model(features, adj)
     loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-    acc_test = accuracy(output[idx_test], labels[idx_test])
+    test_acc, test_f1 = evaluate(output[idx_test], labels[idx_test])
     logger.info(f"Test loss: {round(loss_test.item(), 4)}")
-    logger.info(f"Test accuracy: {round(acc_test.item(), 4)}")
+    logger.info(f"Test accuracy: {round(test_acc, 4)}")
+    logger.info(f"Test f1_macro: {round(test_f1, 4)}")
 
     # Load the best model weights
     model.load_state_dict(best_model_weights)
     logger.info("Load weight with best validation loss")
-
-    # torch.save(model.state_dict(), os.path.join(result_path, "weight.pt"))
 
     torch.save(
         {
@@ -199,10 +200,7 @@ def main(args: argparse.ArgumentParser) -> None:
 
     # summarize training results
     plot_metric_at_k(
-        tr_loss=tr_losses,
-        tr_acc=tr_accs,
-        val_loss=val_losses,
-        val_acc=val_accs,
+        metric=metric,
         parent_save_path=result_path,
     )
 

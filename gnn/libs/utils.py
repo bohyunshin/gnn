@@ -1,9 +1,10 @@
-from typing import Union, Type
+from typing import Union, Type, Tuple
 
 import numpy as np
 import torch
 from torch import Tensor
 from scipy import sparse
+from sklearn.metrics import f1_score
 
 from gnn.model.gcn import GCN
 from gnn.model.graphsage import GraphSage
@@ -49,8 +50,14 @@ def get_model_module(
         raise ValueError(f"Unsupported model: {model_name}")
 
 
-def accuracy(output: Tensor, labels: Tensor) -> float:
+def evaluate(output: Tensor, labels: Tensor) -> Tuple[float, float]:
     preds = output.max(1)[1].type_as(labels)
+    f1_macro = f1_score(labels.numpy(), preds.numpy(), average="macro")
+    acc = accuracy(preds, labels)
+    return acc.item(), f1_macro
+
+
+def accuracy(preds: Tensor, labels: Tensor) -> float:
     correct = preds.eq(labels).double()
     correct = correct.sum()
     return correct / len(labels)

@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import Dict, Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,44 +8,27 @@ from matplotlib.ticker import MultipleLocator
 
 
 def plot_metric_at_k(
-    tr_loss: List[float],
-    val_loss: List[float],
-    tr_acc: List[float],
-    val_acc: List[float],
+    metric: Dict[str, Dict],
     parent_save_path: str,
 ) -> None:
     sns.set_style("darkgrid")
 
-    epochs = len(tr_loss)
-    # plot tr/val loss
-    loss_df = pd.DataFrame(
-        {
-            "value": tr_loss + val_loss,
-            "data": ["train"] * len(tr_loss) + ["val"] * len(val_loss),
-            "epochs": [i for i in range(epochs)] * 2,
-        }
-    )
-    plot_metric(
-        df=loss_df,
-        metric_name="loss",
-        save_path=os.path.join(parent_save_path, "loss.png"),
-        hue="data",
-    )
-
-    # plot tr/val accuracy
-    acc_df = pd.DataFrame(
-        {
-            "value": tr_acc + val_acc,
-            "data": ["train"] * len(tr_loss) + ["val"] * len(val_loss),
-            "epochs": [i for i in range(epochs)] * 2,
-        }
-    )
-    plot_metric(
-        df=acc_df,
-        metric_name="accuracy",
-        save_path=os.path.join(parent_save_path, "acc.png"),
-        hue="data",
-    )
+    epochs = len(metric["train"]["loss"])
+    names = ["loss", "accuracy", "f1_macro"]
+    for name in names:
+        df = pd.DataFrame(
+            {
+                "value": metric["train"][name] + metric["val"][name],
+                "data": ["train"] * epochs + ["val"] * epochs,
+                "epochs": [i for i in range(epochs)] * 2,
+            }
+        )
+        plot_metric(
+            df=df,
+            metric_name=name,
+            save_path=os.path.join(parent_save_path, f"{name}.png"),
+            hue="data",
+        )
 
 
 def plot_metric(
